@@ -1,0 +1,27 @@
+{
+  "name": "12-employee-tracker",
+  "version": "1.0.0",
+  "description": "Application to view and manage employees and relevant information",
+  "main": "sql_connect.js",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "express": "^4.17.1",
+    "inquirer": "^7.2.0",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stmayfield/employee-tracker.git"
+  },
+  "author": "Stephen Mayfield",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stmayfield/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/stmayfield/employee-tracker#readme"
+}

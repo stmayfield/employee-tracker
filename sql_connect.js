@@ -14,11 +14,12 @@ const connection = mysql.createConnection({
 
 connection.connect(function (err) {
     if (err) throw err;
-
     console.log("connected as id " + connection.threadId);
     mainMenu();
     // connection.end();
 });
+
+
 
 function mainMenu() {
     inquirer.prompt({
@@ -49,6 +50,7 @@ function mainMenu() {
                 addEmployee();
                 break;
             case "Remove Employee":
+                removeEmployee();
                 break;
             case "Update Employee":
                 break;
@@ -61,19 +63,22 @@ function mainMenu() {
 }
 
 
-function displayDept() {
+const allTables = `SELECT employee.id AS ID, employee.first_name AS First, employee.last_name AS Last, role.title AS Title, role.salary AS Salary, department.name AS Department
+FROM ((employee INNER JOIN role ON employee.role_ID=role.id) 
+INNER JOIN department ON role.department_id=department.id);`
 
-}
+const allTablesConsole = `SELECT 
+    employee.id, 
+    employee.first_name, 
+    employee.last_name, 
+    role.title, 
+    role.salary, 
+    department.name
+    FROM ((employee INNER JOIN role ON employee.role_ID=role.id) 
+    INNER JOIN department ON role.department_id=department.id)`
 
 function displayEmp() {
-    let query = `SELECT employee.first_name AS First, 
-    employee.last_name AS Last, 
-    role.title AS Title, 
-    role.salary AS Salary, 
-    department.name AS Department
-    FROM ((employee INNER JOIN role ON employee.role_ID=role.id) 
-    INNER JOIN department ON role.department_id=department.id)`;
-    connection.query(query, function (err, res) {
+    connection.query(allTables, function (err, res) {
         if (err) throw err;
         console.table(res)
         mainMenu();
@@ -85,15 +90,52 @@ function displayDept() {
     let query = `SELECT * FROM department`;
     connection.query(query, function (err, res) {
         if (err) throw err;
-        return res
+        inquirer.prompt([
+
+
+            {
+                name: "showDept",
+                type: "rawlist",
+                message: "Select Department: ",
+                choices: function () {
+                    const deptArr = [];
+
+                    if (err) throw err;
+                    for (let i = 0; i < res.length; i++) {
+                        deptArr.push(res[i].name);
+                    }
+                    return deptArr;
+                }
+            }
+        ]).then(
+            function (answer) {
+                let query = `
+                SELECT employee.id, 
+                employee.first_name AS First, 
+                employee.last_name AS Last, 
+                role.title AS Title, 
+                role.salary AS Salary, 
+                department.name AS Department
+                FROM ((employee INNER JOIN role ON employee.role_ID=role.id) 
+                INNER JOIN department ON role.department_id=department.id) WHERE department.name=?`;
+                connection.query(query, [answer.showDept], function (err, res) {
+                    if (err) throw err;
+                    console.table(res)
+                    mainMenu();
+                });
+            }
+        );
     });
 }
 
 
+
+
+
 function addEmployee() {
-    let query = `SELECT * FROM department`;
-    connection.query(query, function (err, res) {
+    connection.query("SELECT * FROM department", function (err, res) {
         if (err) throw err;
+        console.log(res)
         inquirer.prompt([
             {
                 name: "nameFirst",
@@ -124,25 +166,29 @@ function addEmployee() {
                 type: "rawlist",
                 message: "Department: ",
                 choices: function () {
-                    const deptArray = [];
+                    const insertArr = [];
+
+                    if (err) throw err;
                     for (let i = 0; i < res.length; i++) {
-                        deptArray.push(res[i].name);
+                        insertArr.push(res[i].name);
                     }
-                    return deptArray;
+                    console.log(insertArr)
+
+                    return insertArr;
                 }
 
             }
         ]).then(function (answer) {
+            console.log(answer)
+            console.log(`Table has been updated for ${answer.nameFirst} ${answer.nameLast}`)
+            let query =
+                `INSERT INTO employee (first_name, last_name, role_id)
+            VALUES ("${answer.nameFirst}", "${answer.nameLast}", ${res.role_id});
+            
+            INSERT INTO role (title, salary, department_id) 
+            VALUES ("${answer.title}", ${answer.salary}, ${department_id});`;
 
-            console.log(`Table has been updated for ${answer.nameFirst}`)
-            let query = `INSERT INTO employee (first_name, last_name, role_id)
-            VALUES ("${answer.nameFirst}", "${answer.nameLast}");
-            INSERT INTO role (title, salary, department_id)
-            VALUES ("${answer.title}", ${answer.salary});
-            INSERT INTO department (name)
-            VALUES ("${answer.dept}")`;
-
-            connection.query(query, function (err, res) {
+            connection.query(query, function (err) {
                 if (err) throw err;
                 mainMenu();
             });
@@ -160,14 +206,53 @@ function addEmployee() {
 };
 
 
-/*
-let query = ;
+function removeEmployee() {
+    let query = `SELECT * FROM employee;`;
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        console.log(res);
+        inquirer.prompt(
+            {
+                name: "remove",
+                type: "rawlist",
+                message: "Which employee do you want to remove?",
+                choices: function () {
+                    const removeArr = [];
 
-connection.query(query, function (err, res) {
-    if (err) throw err;
-    console.table(res)
-});
-*/
+                    for (let i = 0; i < res.length; i++) {
+                        removeArr.push(
+                            {
+                                id: res[i].id,
+                                name: res[i].first_name + " " + res[i].last_name
+                            }
+                        );
+                    }
+                    console.log(removeArr)
+                    return removeArr;
+                }
+            }
+        ).then(function (answer) {
+            console.log(answer.remove);
+            let query = `DELETE FROM employee WHERE name="Stephen Mayfield"`;
+            connection.query(query, function (err) {
+                if (err) throw err;
+                console.log(answer.remove)
+                mainMenu();
+            });
+        });
+    });
+
+}
+
+function newConnect() {
+    let query = ``;
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        console.table(res)
+    });
+}
+
+
 /*
 function roleTable() {
     connection.query("SELECT * FROM role", function (err, res) {
@@ -192,5 +277,11 @@ function listDept() {
 
         }
     }
+
+
+
+        connection.query(allTablesLite, function (err, res) {
+        if (err) throw err;
+        console.log(res);
 
     */
