@@ -13,12 +13,12 @@ function mainMenu() {
         choices: [
             "View All Employees",
             "View All Employees by Department",
-            "View All Employees by Manager",
+            // "View All Employees by Manager",
             "Add Employee",
             "Remove Employee",
-            "Update Employee",
-            "Update Employee Manager",
-            "Update Employee Role"
+            // "Update Employee",
+            // "Update Employee Manager",
+            // "Update Employee Role"
         ]
     }).then(function (results) {
         switch (results.main) {
