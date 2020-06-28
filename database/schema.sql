@@ -25,6 +25,7 @@ CREATE TABLE employee (
     id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(30),
     last_name VARCHAR(30),
+    full_name VARCHAR(60),
     role_id INT NOT NULL,
     manager_id INT,
     PRIMARY KEY (id),

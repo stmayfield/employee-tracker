@@ -1,7 +1,7 @@
 const connection = require("./assets/js/connection.js")
 const inquirer = require("inquirer");
 const consoleTable = require('console.table');
-const { query } = require("express");
+require("./assets/js/connection.js");
 
 mainMenu();
 
@@ -66,7 +66,6 @@ function displayEmp() {
         if (err) throw err;
         console.table(res)
         mainMenu();
-
     });
 }
 
@@ -75,8 +74,6 @@ function displayDept() {
     connection.query(query, function (err, res) {
         if (err) throw err;
         inquirer.prompt([
-
-
             {
                 name: "showDept",
                 type: "rawlist",
@@ -112,14 +109,10 @@ function displayDept() {
     });
 }
 
-
-
-
-
 function addEmployee() {
-    connection.query("SELECT * FROM department", function (err, res) {
-        if (err) throw err;
+    connection.query("SELECT * FROM role", function (err, res) {
         console.log(res)
+        if (err) throw err;
         inquirer.prompt([
             {
                 name: "nameFirst",
@@ -135,59 +128,95 @@ function addEmployee() {
 
             {
                 name: "title",
-                type: "input",
-                message: "Job Title: "
-            },
+                type: "rawlist",
+                message: "Job Title: ",
+                choices:
+                    function () {
+                        if (err) throw err;
+                        const insertArr = [];
+                        for (let i = 0; i < res.length; i++) {
+                            insertArr.push(res[i].title);
+                        }
+                        return insertArr;
+                    }
+            }
 
-            {
-                name: "salary",
-                type: "input",
-                message: "Gross Annual Salary (estimated): "
-            },
+
+        ]).then(function (answer) {
+            console.log(answer)
+            console.log(`Table has been updated for ${answer.nameFirst} ${answer.nameLast}`)
+            let query = `
+            
+            INSERT INTO employee (first_name, last_name, full_name, role_id)
+            VALUES ("${answer.nameFirst}", "${answer.nameLast}", "${answer.nameFirst} ${answer.nameLast}", 1);`
+
+
+            // function getDeptID() {
+            //     const idArr = [];
+            //     for (let i = 0; i < res.length; i++) {
+            //         if (res.title === answer.title) {
+            //             idArr.push(res[i].id)
+            //             return
+            //         }
+            //     }
+            // }
+
+            function getRoleID() {
+                connection.query("SELECT * FROM role", function (err, res) {
+                    console.log(res);
+                    if (err) throw err;
+                })
+            }
+
+
+            connection.query(query, function (err, res) {
+                if (err) throw err;
+                console.log(res)
+                mainMenu();
+
+            });
+        });
+    });
+
+};
+
+
+
+function addEmployee2(title) {
+    connection.query("SELECT * FROM department", function (err, res) {
+        console.log(res)
+        if (err) throw err;
+        inquirer.prompt([
 
             {
                 name: "dept",
                 type: "rawlist",
                 message: "Department: ",
-                choices: function () {
-                    const insertArr = [];
-
-                    if (err) throw err;
-                    for (let i = 0; i < res.length; i++) {
-                        insertArr.push(res[i].name);
+                choices:
+                    function () {
+                        if (err) throw err;
+                        const insertArr = [];
+                        for (let i = 0; i < res.length; i++) {
+                            insertArr.push(res[i].id);
+                        }
+                        return insertArr;
                     }
-                    console.log(insertArr)
-
-                    return insertArr;
-                }
-
             }
+
         ]).then(function (answer) {
             console.log(answer)
-            console.log(`Table has been updated for ${answer.nameFirst} ${answer.nameLast}`)
-            let query =
-                `INSERT INTO employee (first_name, last_name, role_id)
-            VALUES ("${answer.nameFirst}", "${answer.nameLast}", ${res.role_id});
-            
-            INSERT INTO role (title, salary, department_id) 
-            VALUES ("${answer.title}", ${answer.salary}, ${department_id});`;
+            let query = `
+            INSERT INTO role (title, department_id) 
+            VALUES ("${title}", "${answer.dept}");`
 
-            connection.query(query, function (err) {
+
+            connection.query(query, function (err, res) {
                 if (err) throw err;
                 mainMenu();
-            });
-
-        });
-    });
-
-
-
-
-
-
-
-
-};
+            })
+        })
+    })
+}
 
 
 function removeEmployee() {
@@ -204,23 +233,17 @@ function removeEmployee() {
                     const removeArr = [];
 
                     for (let i = 0; i < res.length; i++) {
-                        removeArr.push(
-                            {
-                                id: res[i].id,
-                                name: res[i].first_name + " " + res[i].last_name
-                            }
-                        );
+                        removeArr.push(res[i].full_name);
                     }
                     console.log(removeArr)
                     return removeArr;
                 }
             }
         ).then(function (answer) {
-            console.log(answer.remove);
-            let query = `DELETE FROM employee WHERE name="Stephen Mayfield"`;
-            connection.query(query, function (err) {
+            console.log(answer);
+            let query = `DELETE FROM employee WHERE full_name=?`;
+            connection.query(query, [answer.remove], function (err) {
                 if (err) throw err;
-                console.log(answer.remove)
                 mainMenu();
             });
         });

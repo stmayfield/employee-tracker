@@ -32,20 +32,20 @@ VALUES ("AP Clerk", 45000.00, 3);
 
 
 
-INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("John", "Doe", 1);
+INSERT INTO employee (first_name, last_name, full_name, role_id)
+VALUES ("John", "Doe", "John Doe", 1);
 
-INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Mike", "Chan", 2);
+INSERT INTO employee (first_name, last_name, full_name, role_id)
+VALUES ("Mike", "Chan", "Mike Chan", 2);
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Malia", "Brown", 3, 1);
+INSERT INTO employee (first_name, last_name, full_name, role_id, manager_id)
+VALUES ("Malia", "Brown", "Malia Brown", 3, 1);
 
-INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Kevin", "Tupik", 4);
+INSERT INTO employee (first_name, last_name, full_name, role_id)
+VALUES ("Kevin", "Tupik", "Kevin Tupik", 4);
 
-INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Ashley", "Rodriguez", 4);
+INSERT INTO employee (first_name, last_name, full_name, role_id)
+VALUES ("Ashley", "Rodriguez", "Ashley Rodriguez", 4);
 
 
 
